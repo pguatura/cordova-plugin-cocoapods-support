@@ -232,6 +232,9 @@ module.exports = function (context) {
 
         if (which('pod')) {
 
+            log("PODS");
+            log(newPods);
+            log(currentPods);
             if (!podified || !_.isEqual(newPods, currentPods)) {
                 log("Installing pods");
                 log("Sit back and relax this could take a while.");
@@ -240,9 +243,14 @@ module.exports = function (context) {
                 });
                 podInstall.stdout.on('data', function (data) {
                     log(data.toString('utf8'));
+                    log("OUT");
+                    log(data.toString('utf8'));
                 });
                 podInstall.stderr.on('data', function (data) {
                     console.error(data.toString('utf8'));
+                    log("ERROR");
+                    log(data.toString('utf8'));
+                    deferred.resolve(false);
                 });
                 podInstall.on('close', function (exitCode) {
                     log("End 1");
@@ -263,8 +271,7 @@ module.exports = function (context) {
     }
 
     function fixBundlePaths(shouldRun) {
-
-        log("BUNDLE PATH");
+        log("fix paths");
         if (bundlePathsToFix.length) {
             var podsResourcesSh = 'platforms/ios/Pods/Target Support Files/Pods-' + appName + '/Pods-' + appName + '-resources.sh';
             var content = fs.readFileSync(podsResourcesSh, 'utf8');
@@ -284,6 +291,7 @@ module.exports = function (context) {
 
     function updateBuild(shouldRun) {
 
+        log("update build");
         if (shouldRun) {
             log('Updating ios build to use workspace.');
             var buildContent = fs.readFileSync('platforms/ios/cordova/lib/build.js', 'utf8');
@@ -321,27 +329,6 @@ module.exports = function (context) {
         }
     }
 
-    function fixSwiftLegacy(shouldRun) {
-        var directories = getDirectories(path.join(__dirname + '/../../../platforms/ios/Pods/Target Support Files')),
-            podXcContents,
-            SWIFT_VERSION_REGX = /SWIFT_VERSION=(?:\d*\.)\d/g;
-        if (useLegacy) {
-            for (var i = 0; i < directories.length; i++) {
-                if (directories[i].indexOf(appName) === -1) {
-                    podXcContents = fs.readFileSync('platforms/ios/Pods/Target Support Files/' + directories[i] + '/' + directories[i] + '.xcconfig', 'utf8');
-                    if (podXcContents.indexOf('SWIFT_VERSION') === -1) {
-                        fs.writeFileSync('platforms/ios/Pods/Target Support Files/' + directories[i] + '/' + directories[i] + '.xcconfig', podXcContents + '\n' + 'SWIFT_VERSION=' + useLegacy)
-                    } else {
-                        fs.writeFileSync('platforms/ios/Pods/Target Support Files/' + directories[i] + '/' + directories[i] + '.xcconfig', podXcContents.replace(SWIFT_VERSION_REGX, 'SWIFT_VERSION=' + useLegacy))
-                    }
-                }
-            }
-
-            log('Using Swift Version ' + useLegacy);
-        }
-
-        return shouldRun;
-    }
 
     function templify(str, data) {
 
