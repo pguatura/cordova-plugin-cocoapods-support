@@ -31,6 +31,7 @@ module.exports = function (context) {
     var pod, podName;
     var podified = fs.existsSync(podConfigPath);
     var currentPods = podified ? JSON.parse(fs.readFileSync(podConfigPath)) : {};
+    var podfile = podified ? fs.readFileSync(path.join(rootPath, 'platforms', 'ios', 'Podfile')) : "";
     var workspaceDir = path.join(rootPath, 'platforms', 'ios', '' + appName + '.xcworkspace');
     var sharedDataDir = path.join(workspaceDir, 'xcshareddata');
     var pluginDir = context.opts.plugin.pluginInfo.dir;
@@ -41,6 +42,7 @@ module.exports = function (context) {
         pods: {},
         sources: {}
     };
+    log(podfile);
 
     if (oldMinVersion) {
         console.warn('The preference "pods_ios_min_version" has been deprecated. Please use "deployment-target" instead.');
