@@ -245,9 +245,11 @@ module.exports = function (context) {
                     console.error(data.toString('utf8'));
                 });
                 podInstall.on('close', function (exitCode) {
+                    log("End 1");
                     deferred.resolve(exitCode === 0);
                 });
             } else {
+                log("End 2");
                 deferred.resolve(false);
             }
 
@@ -256,11 +258,13 @@ module.exports = function (context) {
             deferred.resolve(false);
         }
 
+        log("End 3");
         return deferred.promise;
     }
 
     function fixBundlePaths(shouldRun) {
 
+        log("BUNDLE PATH");
         if (bundlePathsToFix.length) {
             var podsResourcesSh = 'platforms/ios/Pods/Target Support Files/Pods-' + appName + '/Pods-' + appName + '-resources.sh';
             var content = fs.readFileSync(podsResourcesSh, 'utf8');
