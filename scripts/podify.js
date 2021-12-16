@@ -53,7 +53,10 @@ module.exports = function (context) {
         .then(createFiles)
         .then(installPods)
         .then(fixBundlePaths)
-        .then(updateBuild);
+        .then(updateBuild)
+        .catch(function(error){
+            log(error);
+        });
 
     function parseConfigXml() {
 
